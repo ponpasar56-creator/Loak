@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#5e3c1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Pasar Loak - Pencatatan Penjualan</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f5f2e8;
+            margin: 0;
+            padding: 16px;
+            min-height: 100vh;
+        }
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: #5e3c1c;
+            color: #fef5e0;
+            padding: 16px 20px;
+            border-radius: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .badge {
+            background: #d9b382;
+            padding: 4px 12px;
+            border-radius: 50px;
+            color: #2d1c0c;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .install-btn {
+            background: #e0b07f;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #2d1c0c;
+        }
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: #3a2a1f;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 40px;
+            border: 1px solid #ddd0bc;
+            font-size: 1rem;
+            background: #fffdf9;
+        }
+        input:focus {
+            outline: none;
+            border-color: #c28a4a;
+            box-shadow: 0 0 0 2px rgba(194,138,74,0.2);
+        }
+        button {
+            background: #7b4a2e;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #5e3c1c;
+        }
+        .btn-secondary {
+            background: #b87c4a;
+        }
+        .btn-small {
+            background: #c9aa7b;
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            width: auto;
+            display: inline-block;
+        }
+        .item-row {
+            background: #faf7f0;
+            border-radius: 40px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .item-inputs {
+            display: flex;
+            flex: 3;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .item-inputs input {
+            flex: 1;
+            min-width: 100px;
+            margin: 0;
+        }
+        .remove-item {
+            background: #d9896b;
+            width: 40px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 8px 0;
+        }
+        .total-harian {
+            background: #ecd9bf;
+            border-radius: 28px;
+            padding: 14px 20px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .search-box {
+            margin-bottom: 16px;
+        }
+        .transaction-list {
+            max-height: 450px;
+            overflow-y: auto;
+        }
+        .transaction-item {
+            background: #f9f2e6;
+            border-radius: 24px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-left: 5px solid #c28a4a;
+        }
+        .transaction-date {
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .transaction-total {
+            font-weight: bold;
+            color: #7b4a2e;
+            background: #ecd9bf;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+        .items-list {
+            padding-left: 12px;
+            margin: 6px 0;
+        }
+        .item-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: #fff6ed;
+            border-radius: 30px;
+        }
+        .delete-icon {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            color: #b34e3a;
+            transition: 0.2s;
+            width: auto;
+        }
+        .delete-icon:hover {
+            background: #f0d5c4;
+            color: #8a2a1a;
+            transform: scale(1.05);
+        }
+        .empty-msg {
+            text-align: center;
+            color: #9b7c60;
+            padding: 30px;
+            font-style: italic;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .warning-text {
+            color: #9b7c60;
+            font-size: 0.7rem;
+            margin-top: 5px;
+            text-align: center;
+        }
+        .info-text {
+            background: #e8e0d5;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 0.7rem;
+            color: #5e3c1c;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        /* Password Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 48px;
+            padding: 32px 24px;
+            max-width: 320px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-card h3 {
+            margin: 0 0 8px 0;
+            color: #5e3c1c;
+        }
+        .modal-card input {
+            text-align: center;
+            letter-spacing: 8px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 12px;
+            margin: 20px 0;
+        }
+        .modal-card button {
+            margin-top: 8px;
+        }
+        .error-msg {
+            color: #b34e3a;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 550px) {
+            body { padding: 12px; }
+            .item-inputs input { min-width: 70px; }
+        }
+    </style>
+</head>
+<body>
+<div id="mainApp" class="hidden">
+<div class="app-container">
+    <div class="header">
+        <h1>🏬 Pasar Loak</h1>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="badge" id="onlineStatus">🟢 Online</span>
+            <button id="installBtn" class="install-btn" style="display: none;">📲 Install</button>
+        </div>
+    </div>
+
+    <!-- Form Pencatatan -->
+    <div class="card">
+        <h3>📝 Catat Penjualan Hari Ini</h3>
+        <div class="form-group">
+            <label>🗓️ Tanggal (DD/MM/YYYY)</label>
+            <input type="text" id="saleDateInput" placeholder="contoh: 18/05/2026" autocomplete="off">
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <label>🛒 Barang Laku</label>
+            <button type="button" id="addItemBtn" class="btn-small">+ Tambah Barang</button>
+        </div>
+        <div id="itemsContainer"></div>
+        <div class="total-harian">
+            <span>💰 Total Penghasilan hari ini:</span>
+            <span id="liveTotalDisplay">Rp 0</span>
+        </div>
+        <div class="flex-btns">
+            <button id="saveSaleBtn">💾 Simpan (akumulasi)</button>
+            <button id="resetFormBtn" class="btn-secondary">🗑️ Reset Form</button>
+        </div>
+        <div class="info-text">
+            📌 Data lebih dari 4 bulan akan terhapus otomatis | Klik 🗑️ untuk hapus item
+        </div>
+    </div>
+
+    <!-- Riwayat & Pencarian -->
+    <div class="card">
+        <h3>🔍 Riwayat Penjualan</h3>
+        <div class="search-box">
+            <input type="text" id="globalSearchInput" placeholder="Cari nama barang / harga / tanggal (DD/MM/YYYY)">
+        </div>
+        <div id="historyList" class="transaction-list">
+            <div class="empty-msg">Memuat data...</div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal Password -->
+<div id="passwordModal" class="modal">
+    <div class="modal-card">
+        <h3>🔐 Akses Aplikasi</h3>
+        <p style="color:#7b4a2e; font-size:0.8rem;">Masukkan Password 4 Digit</p>
+        <input type="password" id="passwordInput" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="****">
+        <button id="submitPasswordBtn">✓ Masuk</button>
+        <div id="passwordError" class="error-msg"></div>
+    </div>
+</div>
+
+<script>
+    // ========== KONFIGURASI ==========
+    const CORRECT_PASSWORD = "1234"; // Password 4 digit, bisa diubah sesuai keinginan
+    const STORAGE_KEY = "pasarLoakSales_v6";
+    const MAX_MONTHS_KEEP = 4; // Hapus data lebih dari 4 bulan
+    
+    let allSales = [];
+    let isAuthenticated = false;
+    
+    // DOM elements (setelah auth)
+    let saleDateInput, itemsContainer, liveTotalSpan, saveBtn, resetFormBtn, addItemBtn;
+    let globalSearchInput, historyListDiv, onlineStatusSpan, installBtn;
+    
+    // ========== FUNGSI TANGGAL ==========
+    function convertDMYtoISO(dmy) {
+        let parts = dmy.split('/');
+        if (parts.length !== 3) return null;
+        let day = parseInt(parts[0], 10);
+        let month = parseInt(parts[1], 10);
+        let year = parseInt(parts[2], 10);
+        if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+        if (month < 1 || month > 12) return null;
+        if (day < 1 || day > 31) return null;
+        let iso = `${year}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+        let testDate = new Date(year, month-1, day);
+        if (testDate.getFullYear() !== year || testDate.getMonth() !== month-1 || testDate.getDate() !== day) return null;
+        return iso;
+    }
+    
+    function isoToDMY(isoStr) {
+        if (!isoStr) return "";
+        let [year, month, day] = isoStr.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    
+    function getTodayDMY() {
+        const now = new Date();
+        const day = now.getDate().toString().padStart(2,'0');
+        const month = (now.getMonth()+1).toString().padStart(2,'0');
+        const year = now.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+    
+    // ========== AUTO DELETE DATA LEBIH DARI 4 BULAN ==========
+    function autoDeleteOldData() {
+        const now = new Date();
+        const cutoffDate = new Date();
+        cutoffDate.setMonth(now.getMonth() - MAX_MONTHS_KEEP);
+        
+        const beforeCount = allSales.length;
+        const newSales = allSales.filter(sale => {
+            const [year, month, day] = sale.dateISO.split('-').map(Number);
+            const saleDate = new Date(year, month - 1, day);
+            return saleDate >= cutoffDate;
+        });
+        
+        allSales = newSales;
+        const deletedCount = beforeCount - allSales.length;
+        if (deletedCount > 0) {
+            console.log(`🗑️ Auto deleted ${deletedCount} transaksi (lebih dari ${MAX_MONTHS_KEEP} bulan)`);
+        }
+        saveToLocalStorage();
+    }
+    
+    // ========== STORAGE ==========
+    function loadSales() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                allSales = JSON.parse(stored);
+                allSales = allSales.map(s => ({
+                    ...s,
+                    items: s.items.map(it => ({ name: it.name, price: Number(it.price) || 0 })),
+                    total: s.total || s.items.reduce((sum, it) => sum + it.price, 0)
+                }));
+            } catch(e) { allSales = []; }
+        } else {
+            // Data contoh (dalam 4 bulan terakhir)
+            allSales = [
+                { dateISO: "2026-05-17", dateDisplay: "17/05/2026", items: [{ name: "Jaket Thrift", price: 85000 }, { name: "Topi Fedora", price: 30000 }], total: 115000 },
+                { dateISO: "2026-05-16", dateDisplay: "16/05/2026", items: [{ name: "Vas Bunga Antik", price: 25000 }], total: 25000 },
+                { dateISO: "2026-04-10", dateDisplay: "10/04/2026", items: [{ name: "Jam Tangan", price: 120000 }], total: 120000 }
+            ];
+            saveToLocalStorage();
+        }
+        // Hapus data lama setiap load
+        autoDeleteOldData();
+        renderHistory();
+    }
+    
+    function saveToLocalStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allSales));
+    }
+    
+    // ========== FORM ITEM ROWS ==========
+    function computeFormTotal() {
+        let total = 0;
+        document.querySelectorAll(".item-row").forEach(row => {
+            let priceInput = row.querySelector(".item-price");
+            if (priceInput && priceInput.value) {
+                let val = parseFloat(priceInput.value);
+                if (!isNaN(val)) total += val;
+            }
+        });
+        if (liveTotalSpan) liveTotalSpan.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        return total;
+    }
+    
+    function createItemRow(name = "", price = "") {
+        const div = document.createElement("div");
+        div.className = "item-row";
+        div.innerHTML = `
+            <div class="item-inputs">
+                <input type="text" class="item-name" placeholder="Nama barang" value="${escapeHtml(name)}">
+                <input type="number" class="item-price" placeholder="Harga" value="${price}" step="1000">
+            </div>
+            <button type="button" class="remove-item btn-small" style="background:#d9896b;">🗑️</button>
+        `;
+        div.querySelector(".remove-item").addEventListener("click", () => {
+            div.remove();
+            computeFormTotal();
+        });
+        div.querySelector(".item-price").addEventListener("input", () => computeFormTotal());
+        return div;
+    }
+    
+    function resetFormItems() {
+        if (!itemsContainer) return;
+        itemsContainer.innerHTML = "";
+        itemsContainer.appendChild(createItemRow("", ""));
+        computeFormTotal();
+    }
+    
+    function getFormItems() {
+        let items = [];
+        document.querySelectorAll(".item-row").forEach(row => {
+            let name = row.querySelector(".item-name")?.value.trim();
+            let price = parseFloat(row.querySelector(".item-price")?.value || 0);
+            if (isNaN(price)) price = 0;
+            if (name === "" && price === 0) return;
+            if (name === "") name = "Barang tanpa nama";
+            items.push({ name, price });
+        });
+        return items;
+    }
+    
+    // ========== SIMPAN AKUMULASI ==========
+    function saveSale() {
+        let dateDisplay = saleDateInput.value.trim();
+        if (!dateDisplay) {
+            alert("Masukkan tanggal (DD/MM/YYYY)");
+            return;
+        }
+        const dateISO = convertDMYtoISO(dateDisplay);
+        if (!dateISO) {
+            alert("Format tanggal salah! Gunakan DD/MM/YYYY");
+            return;
+        }
+        let newItems = getFormItems();
+        if (newItems.length === 0) {
+            alert("Tambah minimal satu barang yang laku");
+            return;
+        }
+        const existingIdx = allSales.findIndex(s => s.dateISO === dateISO);
+        if (existingIdx !== -1) {
+            const existing = allSales[existingIdx];
+            const merged = [...existing.items, ...newItems];
+            const newTotal = merged.reduce((s, it) => s + it.price, 0);
+            allSales[existingIdx] = {
+                dateISO, dateDisplay,
+                items: merged,
+                total: newTotal
+            };
+            alert(`✅ Ditambahkan ke ${dateDisplay}. Total: Rp ${newTotal.toLocaleString('id-ID')}`);
+        } else {
+            const total = newItems.reduce((s, it) => s + it.price, 0);
+            allSales.push({ dateISO, dateDisplay, items: newItems, total });
+            alert(`✅ Penjualan baru tanggal ${dateDisplay} tersimpan. Total: Rp ${total.toLocaleString('id-ID')}`);
+        }
+        saveToLocalStorage();
+        renderHistory();
+        resetFormItems();
+        if (globalSearchInput.value.trim()) filterAndRenderHistory();
+    }
+    
+    // ========== HAPUS SATU ITEM ==========
+    function deleteSingleItem(dateISO, itemIndex) {
+        const saleIndex = allSales.findIndex(s => s.dateISO === dateISO);
+        if (saleIndex === -1) return;
+        
+        const sale = allSales[saleIndex];
+        const deletedItem = sale.items[itemIndex];
+        
+        if (confirm(`Hapus item "${deletedItem.name}" (Rp ${deletedItem.price.toLocaleString('id-ID')}) dari tanggal ${sale.dateDisplay}?`)) {
+            const newItems = [...sale.items];
+            newItems.splice(itemIndex, 1);
+            
+            if (newItems.length === 0) {
+                if (confirm(`Tidak ada barang tersisa untuk tanggal ${sale.dateDisplay}. Hapus transaksi ini?`)) {
+                    allSales.splice(saleIndex, 1);
+                } else {
+                    return;
+                }
+            } else {
+                const newTotal = newItems.reduce((sum, it) => sum + it.price, 0);
+                allSales[saleIndex] = {
+                    ...sale,
+                    items: newItems,
+                    total: newTotal
+                };
+            }
+            saveToLocalStorage();
+            renderHistory();
+            alert(`✅ "${deletedItem.name}" telah dihapus.`);
+        }
+    }
+    
+    // ========== RENDER RIWAYAT ==========
+    function filterAndRenderHistory() {
+        const keyword = globalSearchInput.value.trim().toLowerCase();
+        let filtered = [...allSales];
+        if (keyword !== "") {
+            filtered = allSales.filter(sale => {
+                if (sale.dateDisplay.includes(keyword)) return true;
+                return sale.items.some(item => 
+                    item.name.toLowerCase().includes(keyword) || 
+                    item.price.toString().includes(keyword)
+                );
+            });
+        }
+        filtered.sort((a,b) => b.dateISO.localeCompare(a.dateISO));
+        if (filtered.length === 0) {
+            historyListDiv.innerHTML = `<div class="empty-msg">🔍 Tidak ada hasil untuk "${escapeHtml(keyword)}"</div>`;
+            return;
+        }
+        let html = "";
+        filtered.forEach(sale => {
+            html += `<div class="transaction-item">
+                        <div class="transaction-date">
+                            <span>📅 ${sale.dateDisplay}</span>
+                            <span class="transaction-total">💰 Rp ${sale.total.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="items-list">`;
+            
+            sale.items.forEach((item, idx) => {
+                let displayName = keyword ? highlightText(item.name, keyword) : escapeHtml(item.name);
+                let displayPrice = `Rp ${item.price.toLocaleString('id-ID')}`;
+                if (keyword && item.price.toString().includes(keyword)) {
+                    displayPrice = `<mark>${displayPrice}</mark>`;
+                }
+                html += `<div class="item-line">
+                            <div style="flex:1;">• ${displayName} — ${displayPrice}</div>
+                            <button class="delete-icon" data-dateiso="${sale.dateISO}" data-itemidx="${idx}" title="Hapus item ini">🗑️</button>
+                        </div>`;
+            });
+            html += `</div></div>`;
+        });
+        historyListDiv.innerHTML = html;
+        
+        document.querySelectorAll('.delete-icon').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dateISO = btn.getAttribute('data-dateiso');
+                const itemIdx = parseInt(btn.getAttribute('data-itemidx'));
+                deleteSingleItem(dateISO, itemIdx);
+            });
+        });
+    }
+    
+    function highlightText(text, keyword) {
+        if (!keyword) return escapeHtml(text);
+        const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return escapeHtml(text).replace(regex, `<mark>$1</mark>`);
+    }
+    
+    function renderHistory() {
+        if (historyListDiv) filterAndRenderHistory();
+    }
+    
+    function resetForm() {
+        if (saleDateInput) saleDateInput.value = getTodayDMY();
+        resetFormItems();
+    }
+    
+    function escapeHtml(str) {
+        if(!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    // ========== ONLINE STATUS & PWA ==========
+    function updateOnlineStatus() {
+        if (onlineStatusSpan) {
+            if (navigator.onLine) {
+                onlineStatusSpan.innerHTML = "🟢 Online";
+                onlineStatusSpan.style.background = "#a6c9a1";
+            } else {
+                onlineStatusSpan.innerHTML = "🔴 Offline";
+                onlineStatusSpan.style.background = "#e0b07f";
+            }
+        }
+    }
+    
+    // ========== INISIALISASI SETELAH AUTH ==========
+    function initApp() {
+        // Ambil DOM elements
+        saleDateInput = document.getElementById("saleDateInput");
+        itemsContainer = document.getElementById("itemsContainer");
+        liveTotalSpan = document.getElementById("liveTotalDisplay");
+        saveBtn = document.getElementById("saveSaleBtn");
+        resetFormBtn = document.getElementById("resetFormBtn");
+        addItemBtn = document.getElementById("addItemBtn");
+        globalSearchInput = document.getElementById("globalSearchInput");
+        historyListDiv = document.getElementById("historyList");
+        onlineStatusSpan = document.getElementById("onlineStatus");
+        installBtn = document.getElementById("installBtn");
+        
+        loadSales();
+        if (saleDateInput) saleDateInput.value = getTodayDMY();
+        resetFormItems();
+        updateOnlineStatus();
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', () => {
+                    installBtn.style.display = 'none';
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+                });
+            }
+        });
+        
+        if (addItemBtn) {
+            addItemBtn.addEventListener("click", () => {
+                if (itemsContainer) {
+                    itemsContainer.appendChild(createItemRow("", ""));
+                    computeFormTotal();
+                }
+            });
+        }
+        if (saveBtn) saveBtn.addEventListener("click", saveSale);
+        if (resetFormBtn) resetFormBtn.addEventListener("click", resetForm);
+        if (globalSearchInput) globalSearchInput.addEventListener("input", () => renderHistory());
+        
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW failed:', err));
+        }
+    }
+    
+    // ========== PASSWORD HANDLER ==========
+    function checkPassword() {
+        const passwordInput = document.getElementById("passwordInput");
+        const passwordError = document.getElementById("passwordError");
+        const enteredPass = passwordInput.value;
+        
+        if (enteredPass === CORRECT_PASSWORD) {
+            isAuthenticated = true;
+            document.getElementById("passwordModal").style.display = "none";
+            document.getElementById("mainApp").classList.remove("hidden");
+            initApp();
+        } else {
+            passwordError.innerText = "❌ Password salah! Coba lagi.";
+            passwordInput.value = "";
+            passwordInput.focus();
+        }
+    }
+    
+    // Event listener untuk submit password
+    document.getElementById("submitPasswordBtn").addEventListener("click", checkPassword);
+    document.getElementById("passwordInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") checkPassword();
+    });
+    
+    // Fokus ke input password saat halaman dimuat
+    document.getElementById("passwordInput").focus();
+</script>
+</body>
+</html>
