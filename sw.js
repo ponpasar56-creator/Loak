@@ -1,11 +1,10 @@
-const CACHE_NAME = 'pasar-loak-v1';
+const CACHE_NAME = 'pasar-loak-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json'
 ];
 
-// Install Service Worker
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -13,13 +12,11 @@ self.addEventListener('install', event => {
   );
 });
 
-// Fetch dengan strategi Cache First, fallback ke network
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
       .then(response => response || fetch(event.request))
       .catch(() => {
-        // Optional: fallback offline page
         if (event.request.mode === 'navigate') {
           return caches.match('/index.html');
         }
@@ -28,7 +25,6 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Update cache
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
