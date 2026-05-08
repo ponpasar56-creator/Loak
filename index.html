@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Pasar Loak - Pencatatan Penjualan Harian</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f5f2e8;
+            margin: 0;
+            padding: 20px;
+        }
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* header */
+        .header {
+            background: #5e3c1c;
+            color: #fef5e0;
+            padding: 16px 24px;
+            border-radius: 36px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.7rem;
+            letter-spacing: 1px;
+        }
+        .badge {
+            background: #d9b382;
+            padding: 6px 14px;
+            border-radius: 50px;
+            color: #2d1c0c;
+            font-weight: bold;
+        }
+        /* dua kolom utama */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+        .form-panel {
+            flex: 2;
+            min-width: 280px;
+            background: white;
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .history-panel {
+            flex: 3;
+            min-width: 320px;
+            background: white;
+            border-radius: 32px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        /* form styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: #3a2a1f;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 28px;
+            border: 1px solid #ddd0bc;
+            font-size: 1rem;
+            background: #fffdf9;
+        }
+        input:focus {
+            outline: none;
+            border-color: #c28a4a;
+            box-shadow: 0 0 0 2px rgba(194,138,74,0.2);
+        }
+        button {
+            background: #7b4a2e;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 6px;
+        }
+        button:hover {
+            background: #5e3c1c;
+            transform: scale(0.98);
+        }
+        .btn-secondary {
+            background: #b87c4a;
+            margin-top: 8px;
+        }
+        .btn-secondary:hover {
+            background: #9b6236;
+        }
+        .btn-small {
+            background: #c9aa7b;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            width: auto;
+            display: inline-block;
+        }
+        .item-row {
+            background: #faf7f0;
+            border-radius: 40px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .item-inputs {
+            display: flex;
+            flex: 3;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .item-inputs input {
+            flex: 1;
+            min-width: 100px;
+            margin: 0;
+        }
+        .remove-item {
+            background: #ac8e6e;
+            width: 40px;
+            border-radius: 40px;
+            font-weight: bold;
+        }
+        #itemsContainer {
+            margin-top: 12px;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        .total-harian {
+            background: #ecd9bf;
+            border-radius: 28px;
+            padding: 14px 20px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        /* tabel histori dan pencarian */
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .calendar-view {
+            background: #fff7ef;
+            border-radius: 28px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            text-align: center;
+        }
+        .cal-day {
+            background: #f2e5d8;
+            padding: 8px 4px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .cal-day.has-sales {
+            background: #cfa668;
+            color: white;
+            font-weight: bold;
+        }
+        .cal-day.today-marker {
+            border: 2px solid #7b4a2e;
+        }
+        .cal-day:hover {
+            background: #bda07e;
+            color: white;
+        }
+        .selected-date-badge {
+            background: #e9dbc9;
+            padding: 10px;
+            border-radius: 36px;
+            text-align: center;
+            margin: 12px 0;
+        }
+        .detail-list {
+            list-style: none;
+            padding: 0;
+        }
+        .detail-list li {
+            background: #f9f2e6;
+            margin: 8px 0;
+            padding: 8px 14px;
+            border-radius: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .empty-msg {
+            color: #9b7c60;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        hr {
+            margin: 20px 0;
+            border-color: #eedbc9;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 780px) {
+            .calendar-grid {
+                gap: 4px;
+            }
+            .cal-day {
+                font-size: 0.7rem;
+                padding: 6px 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>🏬 Pasar Loak · Pencatatan Lakoe</h1>
+        <div class="badge">📆 Riwayat + Kalender</div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Panel kiri: input penjualan hari ini -->
+        <div class="form-panel">
+            <h3>📝 Catat Penjualan Hari Ini</h3>
+            <div class="form-group">
+                <label>🗓️ Hari & Tanggal</label>
+                <input type="date" id="saleDate" required>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <label>🛒 Daftar Barang Laku</label>
+                <button type="button" id="addItemBtn" class="btn-small" style="width: auto; background:#9b7c5f;">+ Tambah Barang</button>
+            </div>
+            <div id="itemsContainer">
+                <!-- item row akan diisi dinamis -->
+            </div>
+
+            <div class="total-harian">
+                <span>💰 Total Pendapatan Hari Ini:</span>
+                <span id="liveTotalDisplay">Rp 0</span>
+            </div>
+
+            <div class="flex-btns">
+                <button id="saveSaleBtn">💾 Simpan Penjualan Hari Ini</button>
+                <button id="resetFormBtn" class="btn-secondary">🗑️ Reset Form</button>
+            </div>
+            <p style="font-size: 12px; margin-top: 12px; color:#8b694a;">✔ Data tersimpan otomatis di browser (localStorage). Klik tanggal di kalender untuk lihat riwayat.</p>
+        </div>
+
+        <!-- Panel kanan: riwayat, kalender, dan pencarian akurat -->
+        <div class="history-panel">
+            <h3>🔍 Cari Transaksi & Riwayat</h3>
+            <div class="search-box">
+                <input type="text" id="globalSearchInput" placeholder="Cari berdasarkan nama barang, harga, atau tanggal (contoh: baju, 15000, 2025-02-18)" autocomplete="off">
+            </div>
+
+            <div class="calendar-view">
+                <div class="month-nav">
+                    <button id="prevMonthBtn" class="btn-small">◀ Bulan</button>
+                    <span id="monthYearDisplay" style="font-weight: bold; font-size: 1.1rem;"></span>
+                    <button id="nextMonthBtn" class="btn-small">Bulan ▶</button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+                <div style="margin-top: 8px; font-size: 12px; text-align: center;">✨ Klik tanggal untuk melihat barang terjual</div>
+            </div>
+
+            <div id="selectedDateDetail">
+                <div class="selected-date-badge" id="selectedDateLabel">📅 Pilih tanggal di kalender</div>
+                <div id="selectedSalesList">
+                    <div class="empty-msg">Belum ada data.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- STORAGE KEYS ----------
+    const STORAGE_KEY = "pasarLoakSales";
+
+    // Data global: array of sales objects
+    // Format: { date: "YYYY-MM-DD", items: [{ name: "xxx", price: number }], total: number, timestamp }
+    let allSales = [];
+
+    // State UI kalender
+    let currentCalendarDate = new Date(); // tahun & bulan yg ditampilkan
+
+    // DOM elements
+    const saleDateInput = document.getElementById("saleDate");
+    const itemsContainer = document.getElementById("itemsContainer");
+    const liveTotalSpan = document.getElementById("liveTotalDisplay");
+    const saveBtn = document.getElementById("saveSaleBtn");
+    const resetFormBtn = document.getElementById("resetFormBtn");
+    const addItemBtn = document.getElementById("addItemBtn");
+    const globalSearchInput = document.getElementById("globalSearchInput");
+    const calendarGrid = document.getElementById("calendarGrid");
+    const monthYearDisplay = document.getElementById("monthYearDisplay");
+    const prevMonthBtn = document.getElementById("prevMonthBtn");
+    const nextMonthBtn = document.getElementById("nextMonthBtn");
+    const selectedDateLabel = document.getElementById("selectedDateLabel");
+    const selectedSalesList = document.getElementById("selectedSalesList");
+
+    // Helper: load dari localStorage
+    function loadSalesFromStorage() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                allSales = JSON.parse(stored);
+                // validasi dan konversi: pastikan items memiliki price number
+                allSales = allSales.map(sale => ({
+                    ...sale,
+                    items: sale.items.map(it => ({ name: it.name, price: Number(it.price) || 0 })),
+                    total: sale.total || sale.items.reduce((sum, it) => sum + (Number(it.price) || 0), 0)
+                }));
+            } catch(e) { allSales = []; }
+        } else {
+            // Data dummy contoh
+            allSales = [
+                { date: "2025-02-18", items: [{ name: "Jaket Jeans", price: 75000 }, { name: "Topi Fedora", price: 35000 }], total: 110000 },
+                { date: "2025-02-17", items: [{ name: "Vas Bunga Retak", price: 25000 }], total: 25000 },
+                { date: "2025-02-15", items: [{ name: "Kompas Antik", price: 120000 }, { name: "Buku cerita", price: 15000 }], total: 135000 },
+                { date: "2025-02-10", items: [{ name: "Jam Dinding", price: 45000 }], total: 45000 }
+            ];
+            saveToLocalStorage();
+        }
+        updateAllUI();
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allSales));
+    }
+
+    // update total tampilan form
+    function computeFormTotal() {
+        let total = 0;
+        const rows = document.querySelectorAll(".item-row");
+        rows.forEach(row => {
+            const priceInput = row.querySelector(".item-price");
+            if (priceInput && priceInput.value) {
+                let val = parseFloat(priceInput.value);
+                if (!isNaN(val)) total += val;
+            }
+        });
+        liveTotalSpan.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        return total;
+    }
+
+    // membuat baris item baru
+    function createItemRow(itemName = "", itemPrice = "") {
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "item-row";
+        rowDiv.innerHTML = `
+            <div class="item-inputs">
+                <input type="text" class="item-name" placeholder="Nama barang (contoh: Vas Bunga)" value="${escapeHtml(itemName)}">
+                <input type="number" class="item-price" placeholder="Harga (Rp)" value="${itemPrice}" step="1000">
+            </div>
+            <button type="button" class="remove-item btn-small" style="background:#c98656;">✖</button>
+        `;
+        const removeBtn = rowDiv.querySelector(".remove-item");
+        removeBtn.addEventListener("click", () => {
+            rowDiv.remove();
+            computeFormTotal();
+        });
+        const priceField = rowDiv.querySelector(".item-price");
+        priceField.addEventListener("input", () => computeFormTotal());
+        const nameField = rowDiv.querySelector(".item-name");
+        nameField.addEventListener("input", () => {});
+        return rowDiv;
+    }
+
+    function populateItemsContainer(itemsArray = [{ name: "", price: "" }]) {
+        itemsContainer.innerHTML = "";
+        if (!itemsArray.length) itemsArray = [{ name: "", price: "" }];
+        itemsArray.forEach(item => {
+            const row = createItemRow(item.name, item.price);
+            itemsContainer.appendChild(row);
+        });
+        computeFormTotal();
+    }
+
+    function getCurrentFormItems() {
+        const rows = document.querySelectorAll(".item-row");
+        let items = [];
+        rows.forEach(row => {
+            const nameInput = row.querySelector(".item-name");
+            const priceInput = row.querySelector(".item-price");
+            let name = nameInput ? nameInput.value.trim() : "";
+            let price = priceInput ? parseFloat(priceInput.value) : 0;
+            if (isNaN(price)) price = 0;
+            if (name !== "") {
+                items.push({ name: name, price: price });
+            } else if (price > 0) {
+                // jika nama kosong tapi ada harga, beri default
+                items.push({ name: "Barang tanpa nama", price: price });
+            }
+        });
+        // filter item dengan price 0 dan nama kosong? abaikan jika namanya kosong dan harga 0
+        items = items.filter(it => it.name !== "" || it.price > 0);
+        if (items.length === 0) items = [];
+        return items;
+    }
+
+    // simpan penjualan dari form
+    function saveCurrentSale() {
+        const dateVal = saleDateInput.value;
+        if (!dateVal) {
+            alert("Silakan pilih Hari & tanggal terlebih dahulu!");
+            return;
+        }
+        let items = getCurrentFormItems();
+        if (items.length === 0) {
+            alert("Minimal tambahkan satu barang yang laku terjual (isi nama & harga)");
+            return;
+        }
+        const total = items.reduce((sum, it) => sum + it.price, 0);
+        const newSale = { date: dateVal, items: items, total: total };
+        // cek apakah sudah ada penjualan untuk tanggal itu? timpa / update? lebih baik kita replace data tanggal tersebut (merge riwayat pasar loak lebih logis: update harian)
+        const existingIndex = allSales.findIndex(s => s.date === dateVal);
+        if (existingIndex !== -1) {
+            if (confirm(`Tanggal ${dateVal} sudah memiliki catatan. Timpa dengan data baru?`)) {
+                allSales[existingIndex] = newSale;
+            } else {
+                return;
+            }
+        } else {
+            allSales.push(newSale);
+        }
+        saveToLocalStorage();
+        updateAllUI();
+        // reset form setelah simpan? biarkan atau reset? kita kosongkan dengan 1 baris kosong agar nyaman
+        populateItemsContainer([{ name: "", price: "" }]);
+        saleDateInput.value = dateVal; // tetap pada tanggal yg sudah dipilih
+        computeFormTotal();
+        alert(`✓ Penjualan tanggal ${dateVal} berhasil disimpan! Total: Rp ${total.toLocaleString('id-ID')}`);
+        // refresh kalender setelah data berubah
+        renderCalendar();
+        // jika tanggal yang baru disimpan sedang dipilih di kalender -> tampilkan detail
+        const currentlySelected = document.getElementById("calendarGrid")?.getAttribute("data-selected-date");
+        if(currentlySelected === dateVal || currentlySelected === dateVal) {
+            displaySaleDetailByDate(dateVal);
+        } else {
+            // jika tidak, tetap ke paling akhir? tetap panggil render biar sinkron
+            displaySaleDetailByDate(dateVal);
+        }
+    }
+
+    function resetForm() {
+        populateItemsContainer([{ name: "", price: "" }]);
+        // tanggal default ke hari ini
+        const today = new Date().toISOString().slice(0,10);
+        saleDateInput.value = today;
+        computeFormTotal();
+    }
+
+    // menampilkan rincian penjualan berdasarkan tanggal
+    function displaySaleDetailByDate(dateStr) {
+        selectedDateLabel.innerText = `📆 Riwayat Penjualan : ${dateStr}`;
+        const sale = allSales.find(s => s.date === dateStr);
+        if (!sale || sale.items.length === 0) {
+            selectedSalesList.innerHTML = `<div class="empty-msg">📭 Tidak ada barang terjual pada tanggal ${dateStr}</div>`;
+            return;
+        }
+        let html = `<ul class="detail-list">`;
+        sale.items.forEach(item => {
+            html += `<li><strong>${escapeHtml(item.name)}</strong> <span>Rp ${item.price.toLocaleString('id-ID')}</span></li>`;
+        });
+        html += `<li style="background:#e6d5be; font-weight:bold;"><span>✨ TOTAL PENJUALAN</span> <span>Rp ${sale.total.toLocaleString('id-ID')}</span></li>`;
+        html += `</ul>`;
+        selectedSalesList.innerHTML = html;
+    }
+
+    // render kalender dengan highlight tanggal yang memiliki penjualan
+    function renderCalendar() {
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+        const firstDayOfMonth = new Date(year, month, 1);
+        const startWeekday = firstDayOfMonth.getDay(); // 0 minggu
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        monthYearDisplay.innerText = `${year}年 ${(month+1).toString().padStart(2,'0')}月`;
+        calendarGrid.innerHTML = "";
+        // nama hari pendek
+        const weekdays = ["Min","Sen","Sel","Rab","Kam","Jum","Sab"];
+        weekdays.forEach(day => {
+            const dayTh = document.createElement("div");
+            dayTh.innerText = day;
+            dayTh.style.fontWeight = "bold";
+            dayTh.style.background = "#e2d2be";
+            dayTh.style.borderRadius = "20px";
+            dayTh.style.padding = "6px";
+            calendarGrid.appendChild(dayTh);
+        });
+        
+        // kosongkan awal sesuai startWeekday
+        for (let i = 0; i < startWeekday; i++) {
+            const emptyDiv = document.createElement("div");
+            emptyDiv.style.background = "transparent";
+            calendarGrid.appendChild(emptyDiv);
+        }
+        
+        const todayStr = new Date().toISOString().slice(0,10);
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${year}-${(month+1).toString().padStart(2,'0')}-${d.toString().padStart(2,'0')}`;
+            const hasSale = allSales.some(sale => sale.date === dateStr);
+            const dayDiv = document.createElement("div");
+            dayDiv.className = "cal-day";
+            if (hasSale) dayDiv.classList.add("has-sales");
+            if (dateStr === todayStr) dayDiv.classList.add("today-marker");
+            dayDiv.innerText = d;
+            dayDiv.addEventListener("click", (function(datestr) {
+                return function() {
+                    displaySaleDetailByDate(datestr);
+                    // set attribute untuk referensi
+                    calendarGrid.setAttribute("data-selected-date", datestr);
+                    // optional highlight visual pribadi
+                    document.querySelectorAll(".cal-day").forEach(el => el.style.background = "");
+                    dayDiv.style.background = "#bf9e78";
+                    dayDiv.style.color = "white";
+                };
+            })(dateStr));
+            calendarGrid.appendChild(dayDiv);
+        }
+    }
+
+    // fungsi Pencarian akurat (nama barang, harga, tanggal)
+    function performGlobalSearch() {
+        const keyword = globalSearchInput.value.trim().toLowerCase();
+        if (keyword === "") {
+            // jika kosong, tetap tampilkan riwayat berdasarkan tanggal terakhir pilih? tapi lebih baik tampilkan semua penjualan paling anyar sort
+            showAllSalesSummary();
+            return;
+        }
+        // filter allSales berdasarkan kriteria: nama barang, atau harga (angka), atau tanggal
+        const filtered = allSales.filter(sale => {
+            // cek tanggal
+            if (sale.date.includes(keyword)) return true;
+            // cek di setiap item
+            const itemMatch = sale.items.some(item => {
+                const nameMatch = item.name.toLowerCase().includes(keyword);
+                const priceStr = item.price.toString();
+                const priceMatch = priceStr.includes(keyword);
+                return nameMatch || priceMatch;
+            });
+            return itemMatch;
+        });
+        displaySearchResults(filtered, keyword);
+    }
+
+    function showAllSalesSummary() {
+        if (allSales.length === 0) {
+            selectedSalesList.innerHTML = `<div class="empty-msg">Belum ada data penjualan.</div>`;
+            selectedDateLabel.innerText = "📋 Semua Riwayat (kosong)";
+            return;
+        }
+        // tampilkan daftar semua penjualan sorting desc
+        const sorted = [...allSales].sort((a,b)=>b.date.localeCompare(a.date));
+        selectedDateLabel.innerText = `🔎 Hasil pencarian: semua transaksi (${allSales.length} hari)`;
+        let html = `<div style="max-height:300px; overflow-y:auto;">`;
+        sorted.forEach(sale => {
+            html += `<div style="background:#f2e3d4; margin:12px 0; border-radius:24px; padding:12px;">`;
+            html += `<div style="font-weight:bold;">📅 ${sale.date}  |  Total: Rp ${sale.total.toLocaleString('id-ID')}</div>`;
+            html += `<ul style="margin:8px 0 0 20px;">`;
+            sale.items.forEach(it => {
+                html += `<li>${escapeHtml(it.name)} — Rp ${it.price.toLocaleString('id-ID')}</li>`;
+            });
+            html += `</ul></div>`;
+        });
+        html += `</div>`;
+        selectedSalesList.innerHTML = html;
+    }
+
+    function displaySearchResults(filtered, keyword) {
+        if (filtered.length === 0) {
+            selectedSalesList.innerHTML = `<div class="empty-msg">🔍 Tidak ada hasil untuk "${escapeHtml(keyword)}"</div>`;
+            selectedDateLabel.innerText = `🔎 Hasil pencarian : 0 ditemukan`;
+            return;
+        }
+        selectedDateLabel.innerText = `🔎 Hasil pencarian "${escapeHtml(keyword)}" (${filtered.length} hari)`;
+        let html = `<div style="max-height:350px; overflow-y:auto;">`;
+        filtered.forEach(sale => {
+            html += `<div style="border-left: 4px solid #c28a4a; background:#fff5ea; margin:12px 0; border-radius:20px; padding:10px;">`;
+            html += `<div><strong>📆 ${sale.date}</strong>  🧾 Total: Rp ${sale.total.toLocaleString('id-ID')}</div>`;
+            html += `<ul style="margin-top: 8px;">`;
+            sale.items.forEach(it => {
+                const highlightName = keyword ? it.name.toLowerCase().includes(keyword) ? `<mark>${escapeHtml(it.name)}</mark>` : escapeHtml(it.name) : escapeHtml(it.name);
+                const highlightPrice = keyword && it.price.toString().includes(keyword) ? `<mark>Rp ${it.price.toLocaleString('id-ID')}</mark>` : `Rp ${it.price.toLocaleString('id-ID')}`;
+                html += `<li>${highlightName} — ${highlightPrice}</li>`;
+            });
+            html += `</ul></div>`;
+        });
+        html += `</div>`;
+        selectedSalesList.innerHTML = html;
+    }
+
+    function updateAllUI() {
+        renderCalendar();
+        // jika ada selected date sebelumnya kita coba refresh? panggil display jika ada atribut
+        const maybeSelected = calendarGrid.getAttribute("data-selected-date");
+        if (maybeSelected && allSales.some(s=>s.date===maybeSelected)) {
+            displaySaleDetailByDate(maybeSelected);
+        } else if (allSales.length>0) {
+            // default tampilkan penjualan terbaru untuk kenyamanan
+            const latest = [...allSales].sort((a,b)=>b.date.localeCompare(a.date))[0];
+            if(latest) displaySaleDetailByDate(latest.date);
+        } else {
+            selectedSalesList.innerHTML = `<div class="empty-msg">Klik tanggal di kalender atau tambah penjualan</div>`;
+            selectedDateLabel.innerText = "📅 Pilih tanggal di kalender";
+        }
+        // update juga search jika perlu
+        if(globalSearchInput.value.trim() !== "") performGlobalSearch();
+    }
+
+    function escapeHtml(str) {
+        if(!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // init form: tanggal hari ini default, satu baris kosong
+    function initForm() {
+        const today = new Date().toISOString().slice(0,10);
+        saleDateInput.value = today;
+        populateItemsContainer([{ name: "", price: "" }]);
+    }
+
+    // event listeners
+    addItemBtn.addEventListener("click", () => {
+        const newRow = createItemRow("", "");
+        itemsContainer.appendChild(newRow);
+        computeFormTotal();
+    });
+    saveBtn.addEventListener("click", saveCurrentSale);
+    resetFormBtn.addEventListener("click", resetForm);
+    globalSearchInput.addEventListener("input", performGlobalSearch);
+    prevMonthBtn.addEventListener("click", () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        renderCalendar();
+    });
+    nextMonthBtn.addEventListener("click", () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        renderCalendar();
+    });
+
+    // load data awal
+    loadSalesFromStorage();
+    initForm();
+</script>
+</body>
+</html>
