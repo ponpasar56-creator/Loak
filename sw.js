@@ -1,8 +1,9 @@
-const CACHE_NAME = 'pasar-loak-v2';
+const CACHE_NAME = 'pasar-loak-v3';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
