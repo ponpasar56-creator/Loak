@@ -2,13 +2,13 @@
   "name": "Pasar Loak - Pencatatan Penjualan",
   "short_name": "PasarLoak",
   "description": "Aplikasi pencatatan barang laku di pasar loak, auto hapus data >4 bulan",
-  "id": "/",
-  "start_url": "/",
+  "id": "ponpasar56-creator.github.io/Loak/",
+  "start_url": "./index.html",
+  "scope": ".",
   "display": "standalone",
   "theme_color": "#5e3c1c",
   "background_color": "#f5f2e8",
   "orientation": "portrait",
-  "scope": "/",
   "icons": [
     {
       "src": "icon-512.png",
@@ -22,5 +22,22 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tampilan Utama Aplikasi"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Tampilan Mobile Aplikasi"
+    }
   ]
 }
+
