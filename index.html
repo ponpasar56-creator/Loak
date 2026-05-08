@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#5e3c1c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Pasar Loak - Pencatatan Penjualan</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #f5f2e8;
+            margin: 0;
+            padding: 16px;
+        }
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: #5e3c1c;
+            color: #fef5e0;
+            padding: 16px 20px;
+            border-radius: 32px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .badge {
+            background: #d9b382;
+            padding: 4px 12px;
+            border-radius: 50px;
+            color: #2d1c0c;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .install-btn {
+            background: #e0b07f;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #2d1c0c;
+        }
+        .card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: #3a2a1f;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 40px;
+            border: 1px solid #ddd0bc;
+            font-size: 1rem;
+            background: #fffdf9;
+        }
+        input:focus {
+            outline: none;
+            border-color: #c28a4a;
+            box-shadow: 0 0 0 2px rgba(194,138,74,0.2);
+        }
+        button {
+            background: #7b4a2e;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #5e3c1c;
+        }
+        .btn-secondary {
+            background: #b87c4a;
+        }
+        .btn-small {
+            background: #c9aa7b;
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            width: auto;
+            display: inline-block;
+        }
+        .item-row {
+            background: #faf7f0;
+            border-radius: 40px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .item-inputs {
+            display: flex;
+            flex: 3;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .item-inputs input {
+            flex: 1;
+            min-width: 100px;
+            margin: 0;
+        }
+        .total-harian {
+            background: #ecd9bf;
+            border-radius: 28px;
+            padding: 14px 20px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .search-box {
+            margin-bottom: 16px;
+        }
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .transaction-item {
+            background: #f9f2e6;
+            border-radius: 24px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-left: 5px solid #c28a4a;
+        }
+        .transaction-date {
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .items-list {
+            padding-left: 20px;
+            margin: 6px 0;
+        }
+        .empty-msg {
+            text-align: center;
+            color: #9b7c60;
+            padding: 30px;
+            font-style: italic;
+        }
+        .flex-btns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .status-offline {
+            background: #e0c8ac;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        hr {
+            margin: 16px 0;
+            border-color: #eedbc9;
+        }
+        @media (max-width: 550px) {
+            body { padding: 12px; }
+            .item-inputs input { min-width: 70px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <h1>🏬 Pasar Loak</h1>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="badge" id="onlineStatus">🟢 Online</span>
+            <button id="installBtn" class="install-btn" style="display: none;">📲 Install App</button>
+        </div>
+    </div>
+
+    <!-- Form Pencatatan -->
+    <div class="card">
+        <h3>📝 Catat Penjualan Hari Ini</h3>
+        <div class="form-group">
+            <label>🗓️ Tanggal (DD/MM/YYYY)</label>
+            <input type="text" id="saleDateInput" placeholder="contoh: 18/05/2026" autocomplete="off">
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <label>🛒 Barang Laku</label>
+            <button type="button" id="addItemBtn" class="btn-small">+ Tambah Barang</button>
+        </div>
+        <div id="itemsContainer"></div>
+        <div class="total-harian">
+            <span>💰 Total Penghasilan hari ini:</span>
+            <span id="liveTotalDisplay">Rp 0</span>
+        </div>
+        <div class="flex-btns">
+            <button id="saveSaleBtn">💾 Simpan (akumulasi)</button>
+            <button id="resetFormBtn" class="btn-secondary">🗑️ Reset</button>
+        </div>
+    </div>
+
+    <!-- Riwayat & Pencarian -->
+    <div class="card">
+        <h3>🔍 Riwayat Penjualan</h3>
+        <div class="search-box">
+            <input type="text" id="globalSearchInput" placeholder="Cari nama barang / harga / tanggal (DD/MM/YYYY)">
+        </div>
+        <div id="historyList" class="transaction-list">
+            <div class="empty-msg">Memuat data...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- STORAGE & GLOBAL ----------
+    const STORAGE_KEY = "pasarLoakSales_v3";
+    let allSales = []; // { dateISO, dateDisplay, items, total }
+    
+    // DOM elements
+    const saleDateInput = document.getElementById("saleDateInput");
+    const itemsContainer = document.getElementById("itemsContainer");
+    const liveTotalSpan = document.getElementById("liveTotalDisplay");
+    const saveBtn = document.getElementById("saveSaleBtn");
+    const resetFormBtn = document.getElementById("resetFormBtn");
+    const addItemBtn = document.getElementById("addItemBtn");
+    const globalSearchInput = document.getElementById("globalSearchInput");
+    const historyListDiv = document.getElementById("historyList");
+    const onlineStatusSpan = document.getElementById("onlineStatus");
+    const installBtn = document.getElementById("installBtn");
+
+    // ---------- Helper Tanggal (DD/MM/YYYY) ----------
+    function convertDMYtoISO(dmy) {
+        let parts = dmy.split('/');
+        if (parts.length !== 3) return null;
+        let day = parseInt(parts[0], 10);
+        let month = parseInt(parts[1], 10);
+        let year = parseInt(parts[2], 10);
+        if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+        if (month < 1 || month > 12) return null;
+        if (day < 1 || day > 31) return null;
+        let iso = `${year}-${month.toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+        let testDate = new Date(year, month-1, day);
+        if (testDate.getFullYear() !== year || testDate.getMonth() !== month-1 || testDate.getDate() !== day) return null;
+        return iso;
+    }
+    function isoToDMY(isoStr) {
+        if (!isoStr) return "";
+        let [year, month, day] = isoStr.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    function getTodayDMY() {
+        const now = new Date();
+        const day = now.getDate().toString().padStart(2,'0');
+        const month = (now.getMonth()+1).toString().padStart(2,'0');
+        const year = now.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // ---------- Storage ----------
+    function loadSales() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                allSales = JSON.parse(stored);
+                allSales = allSales.map(s => ({
+                    ...s,
+                    items: s.items.map(it => ({ name: it.name, price: Number(it.price) || 0 })),
+                    total: s.total || s.items.reduce((sum, it) => sum + it.price, 0)
+                }));
+            } catch(e) { allSales = []; }
+        } else {
+            // Data contoh
+            allSales = [
+                { dateISO: "2026-05-17", dateDisplay: "17/05/2026", items: [{ name: "Jaket Thrift", price: 85000 }, { name: "Topi", price: 30000 }], total: 115000 },
+                { dateISO: "2026-05-16", dateDisplay: "16/05/2026", items: [{ name: "Vas Bunga", price: 25000 }], total: 25000 },
+            ];
+            saveToLocalStorage();
+        }
+        renderHistory();
+    }
+    function saveToLocalStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(allSales));
+    }
+
+    // ---------- Form item rows ----------
+    function computeFormTotal() {
+        let total = 0;
+        document.querySelectorAll(".item-row").forEach(row => {
+            let priceInput = row.querySelector(".item-price");
+            if (priceInput && priceInput.value) {
+                let val = parseFloat(priceInput.value);
+                if (!isNaN(val)) total += val;
+            }
+        });
+        liveTotalSpan.innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        return total;
+    }
+    function createItemRow(name = "", price = "") {
+        const div = document.createElement("div");
+        div.className = "item-row";
+        div.innerHTML = `
+            <div class="item-inputs">
+                <input type="text" class="item-name" placeholder="Nama barang" value="${escapeHtml(name)}">
+                <input type="number" class="item-price" placeholder="Harga" value="${price}" step="1000">
+            </div>
+            <button type="button" class="remove-item btn-small" style="background:#c98656;">✖</button>
+        `;
+        div.querySelector(".remove-item").addEventListener("click", () => {
+            div.remove();
+            computeFormTotal();
+        });
+        div.querySelector(".item-price").addEventListener("input", () => computeFormTotal());
+        return div;
+    }
+    function resetFormItems() {
+        itemsContainer.innerHTML = "";
+        itemsContainer.appendChild(createItemRow("", ""));
+        computeFormTotal();
+    }
+    function getFormItems() {
+        let items = [];
+        document.querySelectorAll(".item-row").forEach(row => {
+            let name = row.querySelector(".item-name")?.value.trim();
+            let price = parseFloat(row.querySelector(".item-price")?.value || 0);
+            if (isNaN(price)) price = 0;
+            if (name === "" && price === 0) return;
+            if (name === "") name = "Barang tanpa nama";
+            items.push({ name, price });
+        });
+        return items;
+    }
+
+    // ---------- Simpan dengan AKUMULASI (tidak ditimpa) ----------
+    function saveSale() {
+        let dateDisplay = saleDateInput.value.trim();
+        if (!dateDisplay) {
+            alert("Masukkan tanggal (DD/MM/YYYY)");
+            return;
+        }
+        const dateISO = convertDMYtoISO(dateDisplay);
+        if (!dateISO) {
+            alert("Format tanggal salah! Gunakan DD/MM/YYYY");
+            return;
+        }
+        let newItems = getFormItems();
+        if (newItems.length === 0) {
+            alert("Tambah minimal satu barang yang laku");
+            return;
+        }
+        const existingIdx = allSales.findIndex(s => s.dateISO === dateISO);
+        if (existingIdx !== -1) {
+            // Akumulasi: tambahkan items
+            const existing = allSales[existingIdx];
+            const merged = [...existing.items, ...newItems];
+            const newTotal = merged.reduce((s, it) => s + it.price, 0);
+            allSales[existingIdx] = {
+                dateISO, dateDisplay,
+                items: merged,
+                total: newTotal
+            };
+            alert(`✅ Ditambahkan ke ${dateDisplay}. Total hari itu: Rp ${newTotal.toLocaleString('id-ID')}`);
+        } else {
+            const total = newItems.reduce((s, it) => s + it.price, 0);
+            allSales.push({ dateISO, dateDisplay, items: newItems, total });
+            alert(`✅ Penjualan baru tanggal ${dateDisplay} tersimpan. Total: Rp ${total.toLocaleString('id-ID')}`);
+        }
+        saveToLocalStorage();
+        renderHistory();
+        resetFormItems();
+        // trigger pencarian jika ada kata
+        if (globalSearchInput.value.trim()) filterAndRenderHistory();
+    }
+
+    // ---------- Render riwayat + pencarian realtime ----------
+    function filterAndRenderHistory() {
+        const keyword = globalSearchInput.value.trim().toLowerCase();
+        let filtered = [...allSales];
+        if (keyword !== "") {
+            filtered = allSales.filter(sale => {
+                if (sale.dateDisplay.includes(keyword)) return true;
+                return sale.items.some(item => 
+                    item.name.toLowerCase().includes(keyword) || 
+                    item.price.toString().includes(keyword)
+                );
+            });
+        }
+        // urutkan dari terbaru (ISO desc)
+        filtered.sort((a,b) => b.dateISO.localeCompare(a.dateISO));
+        if (filtered.length === 0) {
+            historyListDiv.innerHTML = `<div class="empty-msg">🔍 Tidak ada hasil untuk "${escapeHtml(keyword)}"</div>`;
+            return;
+        }
+        let html = "";
+        filtered.forEach(sale => {
+            html += `<div class="transaction-item">
+                        <div class="transaction-date">
+                            <span>📅 ${sale.dateDisplay}</span>
+                            <span style="font-weight:bold; color:#7b4a2e;">💰 Rp ${sale.total.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div class="items-list">`;
+            sale.items.forEach(item => {
+                let displayName = keyword ? highlightText(item.name, keyword) : escapeHtml(item.name);
+                let displayPrice = `Rp ${item.price.toLocaleString('id-ID')}`;
+                if (keyword && item.price.toString().includes(keyword)) {
+                    displayPrice = `<mark>${displayPrice}</mark>`;
+                }
+                html += `<div>• ${displayName} — ${displayPrice}</div>`;
+            });
+            html += `</div></div>`;
+        });
+        historyListDiv.innerHTML = html;
+    }
+
+    function highlightText(text, keyword) {
+        if (!keyword) return escapeHtml(text);
+        const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return escapeHtml(text).replace(regex, `<mark>$1</mark>`);
+    }
+
+    function renderHistory() {
+        filterAndRenderHistory();
+    }
+
+    function resetForm() {
+        saleDateInput.value = getTodayDMY();
+        resetFormItems();
+    }
+
+    function escapeHtml(str) {
+        if(!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // ---------- Online / Offline & PWA install ----------
+    function updateOnlineStatus() {
+        if (navigator.onLine) {
+            onlineStatusSpan.innerHTML = "🟢 Online";
+            onlineStatusSpan.style.background = "#a6c9a1";
+        } else {
+            onlineStatusSpan.innerHTML = "🔴 Offline (data tersimpan lokal)";
+            onlineStatusSpan.style.background = "#e0b07f";
+        }
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'block';
+        installBtn.addEventListener('click', () => {
+            installBtn.style.display = 'none';
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        });
+    });
+
+    // ---------- Init ----------
+    function init() {
+        loadSales();
+        saleDateInput.value = getTodayDMY();
+        resetFormItems();
+        updateOnlineStatus();
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('SW registered:', reg);
+            }).catch(err => console.log('SW failed:', err));
+        }
+    }
+    
+    // Event listeners
+    addItemBtn.addEventListener("click", () => {
+        itemsContainer.appendChild(createItemRow("", ""));
+        computeFormTotal();
+    });
+    saveBtn.addEventListener("click", saveSale);
+    resetFormBtn.addEventListener("click", resetForm);
+    globalSearchInput.addEventListener("input", () => renderHistory());
+    
+    init();
+</script>
+</body>
+</html>
