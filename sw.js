@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pasar-loak-v3';
+const CACHE_NAME = 'pasar-loak-v4';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -21,7 +21,7 @@ self.addEventListener('fetch', event => {
         if (event.request.mode === 'navigate') {
           return caches.match('/index.html');
         }
-        return new Response('Offline - data tersimpan di localStorage', { status: 200 });
+        return new Response('Offline', { status: 200 });
       })
   );
 });
