@@ -1,7 +1,7 @@
 {
   "name": "Pasar Loak - Pencatatan Penjualan",
   "short_name": "PasarLoak",
-  "description": "Aplikasi pencatatan barang laku di pasar loak, bisa hapus item dengan ikon",
+  "description": "Aplikasi pencatatan barang laku di pasar loak, auto hapus data >4 bulan",
   "id": "/",
   "start_url": "/",
   "display": "standalone",
